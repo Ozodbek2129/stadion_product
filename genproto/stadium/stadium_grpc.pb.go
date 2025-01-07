@@ -24,6 +24,7 @@ const (
 	StadiumService_GetStadium_FullMethodName    = "/stadium.StadiumService/GetStadium"
 	StadiumService_GetStadiums_FullMethodName   = "/stadium.StadiumService/GetStadiums"
 	StadiumService_DeleteStadium_FullMethodName = "/stadium.StadiumService/DeleteStadium"
+	StadiumService_OrderStadium_FullMethodName  = "/stadium.StadiumService/OrderStadium"
 )
 
 // StadiumServiceClient is the client API for StadiumService service.
@@ -35,6 +36,7 @@ type StadiumServiceClient interface {
 	GetStadium(ctx context.Context, in *GetStadiumRequest, opts ...grpc.CallOption) (*GetStadiumResponse, error)
 	GetStadiums(ctx context.Context, in *GetStadiumsRequest, opts ...grpc.CallOption) (*GetStadiumsResponse, error)
 	DeleteStadium(ctx context.Context, in *DeleteStadiumRequest, opts ...grpc.CallOption) (*DeleteStadiumResponse, error)
+	OrderStadium(ctx context.Context, in *OrderStadiumRequest, opts ...grpc.CallOption) (*OrderStadiumResponse, error)
 }
 
 type stadiumServiceClient struct {
@@ -95,6 +97,16 @@ func (c *stadiumServiceClient) DeleteStadium(ctx context.Context, in *DeleteStad
 	return out, nil
 }
 
+func (c *stadiumServiceClient) OrderStadium(ctx context.Context, in *OrderStadiumRequest, opts ...grpc.CallOption) (*OrderStadiumResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(OrderStadiumResponse)
+	err := c.cc.Invoke(ctx, StadiumService_OrderStadium_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // StadiumServiceServer is the server API for StadiumService service.
 // All implementations must embed UnimplementedStadiumServiceServer
 // for forward compatibility.
@@ -104,6 +116,7 @@ type StadiumServiceServer interface {
 	GetStadium(context.Context, *GetStadiumRequest) (*GetStadiumResponse, error)
 	GetStadiums(context.Context, *GetStadiumsRequest) (*GetStadiumsResponse, error)
 	DeleteStadium(context.Context, *DeleteStadiumRequest) (*DeleteStadiumResponse, error)
+	OrderStadium(context.Context, *OrderStadiumRequest) (*OrderStadiumResponse, error)
 	mustEmbedUnimplementedStadiumServiceServer()
 }
 
@@ -128,6 +141,9 @@ func (UnimplementedStadiumServiceServer) GetStadiums(context.Context, *GetStadiu
 }
 func (UnimplementedStadiumServiceServer) DeleteStadium(context.Context, *DeleteStadiumRequest) (*DeleteStadiumResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteStadium not implemented")
+}
+func (UnimplementedStadiumServiceServer) OrderStadium(context.Context, *OrderStadiumRequest) (*OrderStadiumResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method OrderStadium not implemented")
 }
 func (UnimplementedStadiumServiceServer) mustEmbedUnimplementedStadiumServiceServer() {}
 func (UnimplementedStadiumServiceServer) testEmbeddedByValue()                        {}
@@ -240,6 +256,24 @@ func _StadiumService_DeleteStadium_Handler(srv interface{}, ctx context.Context,
 	return interceptor(ctx, in, info, handler)
 }
 
+func _StadiumService_OrderStadium_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(OrderStadiumRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(StadiumServiceServer).OrderStadium(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: StadiumService_OrderStadium_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(StadiumServiceServer).OrderStadium(ctx, req.(*OrderStadiumRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // StadiumService_ServiceDesc is the grpc.ServiceDesc for StadiumService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -266,6 +300,10 @@ var StadiumService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "DeleteStadium",
 			Handler:    _StadiumService_DeleteStadium_Handler,
+		},
+		{
+			MethodName: "OrderStadium",
+			Handler:    _StadiumService_OrderStadium_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
