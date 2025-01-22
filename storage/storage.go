@@ -16,5 +16,10 @@ type IStadiumStorage interface {
 	GetStadium (context.Context, *pb.GetStadiumRequest) (*pb.GetStadiumResponse, error)
 	GetStadiums (context.Context, *pb.GetStadiumsRequest) (*pb.GetStadiumsResponse, error)
 	DeleteStadium (context.Context, *pb.DeleteStadiumRequest) (*pb.DeleteStadiumResponse, error)
-	OrderStadium (context.Context, *pb.OrderStadiumRequest) (*pb.OrderStadiumResponse, error)											
+	CreateOrderStadium (context.Context, *pb.CreateOrderStadiumRequest) (*pb.CreateOrderStadiumResponse, error)		
+	GetOrderStadiums (context.Context, *pb.GetOrderStadiumsRequest) (*pb.GetOrderStadiumsResponse, error)
+	GetOrderStadium (context.Context, *pb.GetOrderStadiumRequest) (*pb.GetOrderStadiumResponse, error)	
+	UpdateOrderStadium (context.Context, *pb.UpdateOrderStadiumRequest) (*pb.UpdateOrderStadiumResponse, error)
+	DeleteOrderStadium (context.Context, *pb.DeleteOrderStadiumRequest) (*pb.DeleteOrderStadiumResponse, error)
+	GetDeletedOrderStadiums (context.Context, *pb.GetDeletedOrderStadiumsRequest) (*pb.GetDeletedOrderStadiumsResponse, error)								
 }
