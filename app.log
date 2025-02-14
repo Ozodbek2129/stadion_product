@@ -1,0 +1,8 @@
+time=2025-02-13T16:27:26.163+05:00 level=ERROR msg="error adding property: pq: relation \"stadium\" does not exist"
+time=2025-02-13T16:27:26.164+05:00 level=ERROR msg="Error creating stadium service: pq: relation \"stadium\" does not exist"
+time=2025-02-13T16:28:36.352+05:00 level=ERROR msg="error adding property: pq: relation \"stadium\" does not exist"
+time=2025-02-13T16:28:36.353+05:00 level=ERROR msg="Error creating stadium service: pq: relation \"stadium\" does not exist"
+time=2025-02-13T16:29:21.990+05:00 level=ERROR msg="error adding property: pq: relation \"stadium\" does not exist"
+time=2025-02-13T16:29:21.990+05:00 level=ERROR msg="Error creating stadium service: pq: relation \"stadium\" does not exist"
+time=2025-02-13T16:50:17.385+05:00 level=ERROR msg="error querying stadiums: pq: invalid input syntax for type uuid: \"\""
+time=2025-02-13T16:50:17.386+05:00 level=ERROR msg="Error getting stadiums service: pq: invalid input syntax for type uuid: \"\""
