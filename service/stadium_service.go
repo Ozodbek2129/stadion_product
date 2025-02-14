@@ -132,3 +132,13 @@ func (s *StadiumService) GetDeletedOrderStadiums(ctx context.Context, req *pb.Ge
 
 	return res, nil
 }
+
+func (s *StadiumService) GetAllStadium(ctx context.Context, req *pb.GetAllStadiumRequest) (*pb.GetAllStadiumResponse, error) {
+	res, err := s.Stadium.GetAllStadium(ctx, req)
+	if err != nil {
+		s.Log.Error(fmt.Sprintf("Error getting all stadium service: %v", err.Error()))
+		return nil, err
+	}
+
+	return res, nil
+}

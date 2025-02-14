@@ -530,3 +530,66 @@ func (s StadiumRepository) GetDeletedOrderStadiums(ctx context.Context, req *pb.
 
 	return orderRes, nil
 }
+
+func (s StadiumRepository) GetAllStadium(ctx context.Context, req *pb.GetAllStadiumRequest) (*pb.GetAllStadiumResponse, error) {
+	query_stadium := `
+		SELECT 
+			s.id, 
+			s.user_id, 
+			s.name, 
+			ST_X(s.location::geometry) AS longitude, 
+			ST_Y(s.location::geometry) AS latitude,
+			s.address, 
+			s.phonenummer, 
+			s.price, 
+			s.length, 
+			s.width, 
+			s.situation,
+			ARRAY(
+				SELECT image_url 
+				FROM stadium_images 
+				WHERE stadium_id = s.id AND deleted_at = 0
+			) AS image_urls 
+		FROM stadium s 
+		WHERE s.deleted_at = 0
+		LIMIT $1 OFFSET $2`
+
+	limit := req.Limit
+	if limit <= 0 {
+		limit = 10 // Default limit
+	}
+	offset := (req.Page - 1) * limit
+
+	rows, err := s.Db.QueryContext(ctx, query_stadium, limit, offset)
+	if err != nil {
+		s.Log.ErrorContext(ctx, fmt.Sprintf("error querying stadiums: %v", err.Error()))
+		return nil, err
+	}
+	defer rows.Close()
+
+	stadiums := []*pb.Stadium{}
+	for rows.Next() {
+		var stadium pb.Stadium
+		var imageUrls []string
+
+		err = rows.Scan(
+			&stadium.Id, &stadium.UserId, &stadium.Name, &stadium.Longitude, &stadium.Latitude,
+			&stadium.Address, &stadium.Phonenummer, &stadium.Price, &stadium.Length, &stadium.Width, &stadium.Situation,
+			pq.Array(&imageUrls),
+		)
+		if err != nil {
+			s.Log.ErrorContext(ctx, fmt.Sprintf("error scanning stadium row: %v", err.Error()))
+			return nil, err
+		}
+
+		stadium.ImageUrls = imageUrls
+		stadiums = append(stadiums, &stadium)
+	}
+
+	if err = rows.Err(); err != nil {
+		s.Log.ErrorContext(ctx, fmt.Sprintf("error iterating stadium rows: %v", err.Error()))
+		return nil, err
+	}
+
+	return &pb.GetAllStadiumResponse{Stadiums: stadiums}, nil
+}
