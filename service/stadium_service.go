@@ -140,5 +140,8 @@ func (s *StadiumService) GetAllStadium(ctx context.Context, req *pb.GetAllStadiu
 		return nil, err
 	}
 
+	// Debug: nechta stadion borligini ko‘rsatamiz
+	fmt.Printf("Service returning %d stadiums\n", len(res.Stadiums))
+
 	return res, nil
 }

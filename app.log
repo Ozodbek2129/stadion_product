@@ -6,3 +6,7 @@ time=2025-02-13T16:29:21.990+05:00 level=ERROR msg="error adding property: pq: r
 time=2025-02-13T16:29:21.990+05:00 level=ERROR msg="Error creating stadium service: pq: relation \"stadium\" does not exist"
 time=2025-02-13T16:50:17.385+05:00 level=ERROR msg="error querying stadiums: pq: invalid input syntax for type uuid: \"\""
 time=2025-02-13T16:50:17.386+05:00 level=ERROR msg="Error getting stadiums service: pq: invalid input syntax for type uuid: \"\""
+time=2025-02-14T09:41:01.183+05:00 level=ERROR msg="error querying stadiums: pq: OFFSET must not be negative"
+time=2025-02-14T09:41:01.184+05:00 level=ERROR msg="Error getting all stadium service: pq: OFFSET must not be negative"
+time=2025-02-14T16:18:15.377+05:00 level=ERROR msg="error updating stadium: pq: syntax error at or near \"WHERE\""
+time=2025-02-14T16:18:15.378+05:00 level=ERROR msg="Error updating stadium service: pq: syntax error at or near \"WHERE\""

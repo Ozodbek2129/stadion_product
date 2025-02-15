@@ -177,8 +177,17 @@ func (s *StadiumRepository) UpdateStadium(ctx context.Context, req *pb.UpdateReq
 		req.Longitude = float32(oldLon)
 	}
 
-	query_update_stadium := `UPDATE stadium SET name = $1, location = ST_SetSRID(ST_MakePoint($2, $3), address = $4, phonenummer = $5, 
-							price = $6, length = $7, width = $8, situation = $9, updated_at = NOW() WHERE id = $10`
+	query_update_stadium := `UPDATE stadium 
+SET name = $1, 
+    location = ST_SetSRID(ST_MakePoint($2, $3), 4326), 
+    address = $4, 
+    phonenummer = $5, 
+    price = $6, 
+    length = $7, 
+    width = $8, 
+    situation = $9, 
+    updated_at = NOW() 
+WHERE id = $10`
 
 	_, err = tx.ExecContext(ctx, query_update_stadium, req.Name, req.Longitude, req.Latitude, req.Address,
 		req.Phonenummer, req.Price, req.Length, req.Width, req.Situation, req.Id)
@@ -333,11 +342,11 @@ func (s *StadiumRepository) DeleteStadium(ctx context.Context, req *pb.DeleteSta
 
 func (s *StadiumRepository) CreateOrderStadium(ctx context.Context, req *pb.CreateOrderStadiumRequest) (*pb.CreateOrderStadiumResponse, error) {
 	const layoutISO = "2006-01-02"
-    date, err := time.Parse(layoutISO, req.Date)
-    if err != nil {
-        s.Log.ErrorContext(ctx, fmt.Sprintf("invalid date format: %v", err.Error()))
-        return nil, fmt.Errorf("invalid date format, expected YYYY-MM-DD")
-    }
+	date, err := time.Parse(layoutISO, req.Date)
+	if err != nil {
+		s.Log.ErrorContext(ctx, fmt.Sprintf("invalid date format: %v", err.Error()))
+		return nil, fmt.Errorf("invalid date format, expected YYYY-MM-DD")
+	}
 
 	query_order := `insert into order_stadium (
 		id, user_id, stadium_id, start_time, end_time, price, status, date, created_at, updated_at
@@ -409,7 +418,7 @@ func (s *StadiumRepository) GetOrderStadium(ctx context.Context, req *pb.GetOrde
 					WHERE id = $1 and deleted_at = 0`
 
 	var order pb.OrderStadium
-	err := s.Db.QueryRowContext(ctx, query_order, req.Id).Scan(&order.Id, &order.UserId, &order.StadiumId, &order.Date,	&order.StartTime, &order.EndTime, &order.Price, &order.Status)
+	err := s.Db.QueryRowContext(ctx, query_order, req.Id).Scan(&order.Id, &order.UserId, &order.StadiumId, &order.Date, &order.StartTime, &order.EndTime, &order.Price, &order.Status)
 	if err != nil {
 		s.Log.ErrorContext(ctx, fmt.Sprintf("error reading order: %v", err.Error()))
 		return nil, err
@@ -418,24 +427,23 @@ func (s *StadiumRepository) GetOrderStadium(ctx context.Context, req *pb.GetOrde
 	return &pb.GetOrderStadiumResponse{OrderStadium: &order}, nil
 }
 
-func (s *StadiumRepository) UpdateOrderStadium(ctx context.Context, req *pb.UpdateOrderStadiumRequest) (*pb.UpdateOrderStadiumResponse,error) {
+func (s *StadiumRepository) UpdateOrderStadium(ctx context.Context, req *pb.UpdateOrderStadiumRequest) (*pb.UpdateOrderStadiumResponse, error) {
 	query_order := `SELECT id, user_id, stadium_id, date, start_time, end_time, price, status 
 					FROM order_stadium 
 					WHERE id = $1 and deleted_at = 0`
 
-					
 	var oldStadiumOrder struct {
-		ID string
-		User_id string
-		Stadium_id string 
-		Date string 
-		Start_time string 
-		End_time string 
-		Status string 
-		Price float64 
+		ID         string
+		User_id    string
+		Stadium_id string
+		Date       string
+		Start_time string
+		End_time   string
+		Status     string
+		Price      float64
 	}
 
-	err := s.Db.QueryRowContext(ctx, query_order, req.Id).Scan(&oldStadiumOrder.ID, &oldStadiumOrder.User_id, &oldStadiumOrder.Stadium_id, &oldStadiumOrder.Date,	&oldStadiumOrder.Start_time, &oldStadiumOrder.End_time, &oldStadiumOrder.Price, &oldStadiumOrder.Status)
+	err := s.Db.QueryRowContext(ctx, query_order, req.Id).Scan(&oldStadiumOrder.ID, &oldStadiumOrder.User_id, &oldStadiumOrder.Stadium_id, &oldStadiumOrder.Date, &oldStadiumOrder.Start_time, &oldStadiumOrder.End_time, &oldStadiumOrder.Price, &oldStadiumOrder.Status)
 	if err != nil {
 		s.Log.ErrorContext(ctx, fmt.Sprintf("error reading order: %v", err.Error()))
 		return nil, err
@@ -482,7 +490,7 @@ func (s *StadiumRepository) UpdateOrderStadium(ctx context.Context, req *pb.Upda
 	return &pb.UpdateOrderStadiumResponse{OrderStadium: response}, nil
 }
 
-func (s StadiumRepository) DeleteOrderStadium(ctx context.Context, req *pb.DeleteOrderStadiumRequest) (*pb.DeleteOrderStadiumResponse,error) {
+func (s StadiumRepository) DeleteOrderStadium(ctx context.Context, req *pb.DeleteOrderStadiumRequest) (*pb.DeleteOrderStadiumResponse, error) {
 	query_delete_order := `UPDATE order_stadium SET deleted_at = NOW() WHERE id = $1`
 	_, err := s.Db.ExecContext(ctx, query_delete_order, req.Id)
 	if err != nil {
@@ -495,7 +503,7 @@ func (s StadiumRepository) DeleteOrderStadium(ctx context.Context, req *pb.Delet
 	}, nil
 }
 
-func (s StadiumRepository) GetDeletedOrderStadiums(ctx context.Context, req *pb.GetDeletedOrderStadiumsRequest) (*pb.GetDeletedOrderStadiumsResponse,error) {
+func (s StadiumRepository) GetDeletedOrderStadiums(ctx context.Context, req *pb.GetDeletedOrderStadiumsRequest) (*pb.GetDeletedOrderStadiumsResponse, error) {
 	query_order := `SELECT id, user_id, stadium_id, date, start_time, end_time, price, status 
 					FROM order_stadium 
 					WHERE user_id = $1 and deleted_at != 0`
@@ -552,13 +560,22 @@ func (s StadiumRepository) GetAllStadium(ctx context.Context, req *pb.GetAllStad
 			) AS image_urls 
 		FROM stadium s 
 		WHERE s.deleted_at = 0
+		ORDER BY s.created_at DESC
 		LIMIT $1 OFFSET $2`
 
 	limit := req.Limit
 	if limit <= 0 {
 		limit = 10 // Default limit
 	}
-	offset := (req.Page - 1) * limit
+
+	page := req.Page
+	if page <= 0 {
+		page = 1 // Default page
+	}
+
+	offset := (page - 1) * limit
+	fmt.Println("Offset:", offset)
+	fmt.Println("Limit:", limit)
 
 	rows, err := s.Db.QueryContext(ctx, query_stadium, limit, offset)
 	if err != nil {
@@ -567,7 +584,8 @@ func (s StadiumRepository) GetAllStadium(ctx context.Context, req *pb.GetAllStad
 	}
 	defer rows.Close()
 
-	stadiums := []*pb.Stadium{}
+	var stadiums []*pb.Stadium
+
 	for rows.Next() {
 		var stadium pb.Stadium
 		var imageUrls []string
@@ -590,6 +608,9 @@ func (s StadiumRepository) GetAllStadium(ctx context.Context, req *pb.GetAllStad
 		s.Log.ErrorContext(ctx, fmt.Sprintf("error iterating stadium rows: %v", err.Error()))
 		return nil, err
 	}
+
+	// Debug ma'lumot chiqarish
+	fmt.Printf("Returning %d stadiums\n", len(stadiums))
 
 	return &pb.GetAllStadiumResponse{Stadiums: stadiums}, nil
 }
